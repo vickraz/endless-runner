@@ -153,6 +153,10 @@ anims/Slide = SubResource( 7 )
 wait_time = 0.08
 one_shot = true
 
+[node name="JumpBuffer" type="Timer" parent="."]
+wait_time = 0.1
+one_shot = true
+
 [node name="UpSlopeRay" type="RayCast2D" parent="."]
 position = Vector2( 0, 16 )
 rotation = -1.5708
@@ -191,3 +195,4 @@ custom_fonts/font = SubResource( 8 )
 text = "Distance: 0.0 m"
 
 [connection signal="timeout" from="CoyoteTimer" to="." method="_on_CoyoteTimer_timeout"]
+[connection signal="timeout" from="JumpBuffer" to="." method="_on_JumpBuffer_timeout"]

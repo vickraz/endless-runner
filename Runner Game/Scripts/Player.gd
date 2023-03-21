@@ -9,6 +9,7 @@ onready var upSlopeRay = $UpSlopeRay
 onready var downSlopeRay = $DownSlopeRay
 onready var distanceText = $HUD/DistanceText
 onready var runningParticles = $RunningParticles
+onready var jumpBuffer = $JumpBuffer
 
 const ACC = 300
 const NORM_GRAVITY = 1200
@@ -25,7 +26,6 @@ var can_jump = true
 var want_to_jump := false
 var holding_jump := false
 var hold_time := 0.0
-var jumpbuffer := 0.0
 
 var input_vector := Vector2.ZERO
 var velocity := Vector2.ZERO
@@ -38,6 +38,7 @@ var state = RUNNING
 onready var start_x = global_position.x
 
 var impact_scene = preload("res://Scenes/ImpactSmoke.tscn")
+var death_particles = preload("res://Scenes/PlayerDeadParticles.tscn")
 
 func _physics_process(delta: float) -> void:
 	match state:
@@ -54,10 +55,7 @@ func _physics_process(delta: float) -> void:
 	distance_traveled = (global_position.x - start_x) / 20.0
 	distanceText.text = "Distance: " + str(round(distance_traveled)) + " m"
 	if global_position.y > 620:
-		emit_signal("dead", round(distance_traveled))
-		state = DEAD
-		visible = false
-		distanceText.visible = false
+		enter_dead_state(false)
 
 #general help functions
 func _move_player(delta) -> void:
@@ -70,12 +68,12 @@ func _move_player(delta) -> void:
 		velocity.y += gravity * delta
 		
 	velocity.y = clamp(velocity.y, -800, 800)
-	if _on_down_slope():
-		velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 5,Vector2.UP,
-										false, 5, deg2rad(50), true)
-	else:
-		velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 5,Vector2.UP,
-										true, 5, deg2rad(50), true)
+	#if _on_down_slope():
+	#	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 5,Vector2.UP,
+	#									false, 5, deg2rad(50), true)
+	#else:
+	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 6,Vector2.UP,
+										true, 6, deg2rad(50), true)
 	
 	if is_on_wall():
 		velocity.x = 0
@@ -113,6 +111,8 @@ func _air_state(delta: float) -> void:
 		_enter_air_state(true)
 	elif Input.is_action_just_pressed("jump"):
 		want_to_jump = true
+		jumpBuffer.start()
+		
 		
 	if Input.is_action_pressed("ui_down"):
 		gravity = MAX_GRAVITY
@@ -129,16 +129,12 @@ func _air_state(delta: float) -> void:
 			
 			
 	_move_player(delta)
-	
-	if want_to_jump:
-		jumpbuffer += delta
-	
-	
+		
 	if velocity.y > 0:
 		anim.play("Fall")
 	
 	if is_on_floor():
-		if want_to_jump and jumpbuffer < 0.1:
+		if want_to_jump:
 			_enter_air_state(true)
 		else:
 			_enter_run_state()
@@ -155,7 +151,6 @@ func _enter_run_state() -> void:
 	holding_jump = false
 	hold_time = 0.0
 	can_jump = true 
-	jumpbuffer = 0.0
 	want_to_jump = false
 	gravity = NORM_GRAVITY
 	if prevoius_y_vel > 700 and not _on_down_slope():
@@ -171,10 +166,24 @@ func _enter_air_state(jumping: bool) -> void:
 	else:
 		coyoteTimer.start()
 	state = AIR
-	jumpbuffer = 0.0
 	anim.play("Jump")
 	runningParticles.emitting = false
 
+func enter_dead_state(spawn_particles: bool) -> void:
+	emit_signal("dead", round(distance_traveled))
+	state = DEAD
+	visible = false
+	distanceText.visible = false
+	if spawn_particles:
+		var p = death_particles.instance()
+		p.emitting  = true 
+		p.one_shot = true
+		p.global_position = global_position + Vector2(-22, -15)
+		get_parent().add_child(p)
+	
 
 func _on_CoyoteTimer_timeout() -> void:
 	can_jump = false
+	
+func _on_JumpBuffer_timeout() -> void:
+	want_to_jump = false
