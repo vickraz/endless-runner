@@ -70,8 +70,12 @@ func _move_player(delta) -> void:
 		velocity.y += gravity * delta
 		
 	velocity.y = clamp(velocity.y, -800, 800)
-	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 5,Vector2.UP,
-										true, 4, deg2rad(50), true)
+	if _on_down_slope():
+		velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 5,Vector2.UP,
+										false, 5, deg2rad(50), true)
+	else:
+		velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 5,Vector2.UP,
+										true, 5, deg2rad(50), true)
 	
 	if is_on_wall():
 		velocity.x = 0

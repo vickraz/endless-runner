@@ -25,7 +25,8 @@ limit_bottom = 600
 offset_h = 1.0
 
 [node name="Player" parent="." instance=ExtResource( 4 )]
-position = Vector2( 80, 393 )
+position = Vector2( 286, 414 )
 scale = Vector2( 2, 2 )
 
 [node name="GameOverMenu" parent="." instance=ExtResource( 6 )]
+visible = false
