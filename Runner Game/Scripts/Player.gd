@@ -5,7 +5,6 @@ signal dead(distance)
 
 onready var anim = $AnimationPlayer
 onready var coyoteTimer = $CoyoteTimer
-onready var upSlopeRay = $UpSlopeRay
 onready var downSlopeRay = $DownSlopeRay
 onready var distanceText = $HUD/DistanceText
 onready var runningParticles = $RunningParticles
@@ -17,7 +16,7 @@ const MIN_GRAVITY = 400
 const MAX_GRAVITY = 3200
 const JUMP_STRENGHT = -590
 const MAX_HOLD_TIME = 0.4;
-const follow_slope_const = -PI/4
+const follow_slope_const = PI/4
 
 var gravity := NORM_GRAVITY
 var max_speed = 320
@@ -60,38 +59,27 @@ func _physics_process(delta: float) -> void:
 #general help functions
 func _move_player(delta) -> void:
 	prevoius_y_vel = velocity.y
-	if _on_up_slope():
-		velocity = velocity.move_toward(Vector2.RIGHT.rotated(follow_slope_const) * max_speed
-										, 800 * delta)
+	if _on_down_slope():
+		velocity = velocity.move_toward(Vector2.RIGHT.rotated(follow_slope_const) * max_speed * 3, ACC * delta * 3)
 	else:
 		velocity.x = move_toward(velocity.x, max_speed, ACC*delta)
 		velocity.y += gravity * delta
+	#if not _on_down_slope():	
+		velocity.y = clamp(velocity.y, -800, 800)
 		
-	velocity.y = clamp(velocity.y, -800, 800)
-	#if _on_down_slope():
-	#	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 5,Vector2.UP,
-	#									false, 5, deg2rad(50), true)
-	#else:
-	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 6,Vector2.UP,
-										true, 6, deg2rad(50), true)
+	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 8,Vector2.UP,
+										true, 4, deg2rad(50), true)
 	
 	if is_on_wall():
 		velocity.x = 0
 
-func _on_up_slope() -> bool:
-	upSlopeRay.force_raycast_update()
-	if upSlopeRay.is_colliding():
-		var norm = upSlopeRay.get_collision_normal()
-		if not norm.is_equal_approx(Vector2(-1,0)):
-			return true
-	return false
 
 func _on_down_slope() -> bool:
 	downSlopeRay.force_raycast_update()
 	return downSlopeRay.is_colliding()
 
 #state-functions
-func _idle_state(delta: float) -> void:
+func _idle_state(_delta: float) -> void:
 	pass
 
 func _run_state(delta: float) -> void:
@@ -153,7 +141,7 @@ func _enter_run_state() -> void:
 	can_jump = true 
 	want_to_jump = false
 	gravity = NORM_GRAVITY
-	if prevoius_y_vel > 700 and not _on_down_slope():
+	if prevoius_y_vel > 750 and not _on_down_slope():
 		var particles = impact_scene.instance()
 		particles.global_position = global_position + Vector2(5, 25)
 		get_parent().add_child(particles)

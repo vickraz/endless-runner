@@ -15,3 +15,6 @@ position = Vector2( 1184, 282 )
 
 [node name="StartEdge" parent="." index="3"]
 position = Vector2( 0, 285 )
+
+[node name="BarrelSpawn" parent="." index="4"]
+position = Vector2( 1045, 287 )

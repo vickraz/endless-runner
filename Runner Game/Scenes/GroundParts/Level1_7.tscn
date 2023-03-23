@@ -12,3 +12,6 @@ tile_data = PoolIntArray( 262152, 5, 0, 393264, 0, 0, 393265, 0, 0, 393266, 0, 0
 
 [node name="Edge" parent="." index="2"]
 position = Vector2( 1695, 221 )
+
+[node name="BarrelSpawn" parent="." index="4"]
+position = Vector2( 1564, 225 )

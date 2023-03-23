@@ -2,7 +2,7 @@ extends Node2D
 
 export var level = 1
 export var path = "res://Scenes/GroundParts/Level"
-export var number_of_parts = 10
+export var number_of_parts = 11
 
 onready var edge: Position2D = $Start/Edge
 onready var player: Player = get_parent().get_node("Player")
