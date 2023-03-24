@@ -10,21 +10,22 @@ onready var distanceText = $HUD/DistanceText
 onready var runningParticles = $RunningParticles
 onready var jumpBuffer = $JumpBuffer
 
-const ACC = 300
-const NORM_GRAVITY = 1200
-const MIN_GRAVITY = 400
-const MAX_GRAVITY = 3200
-const JUMP_STRENGHT = -590
+const MAX_ACC = 350
+const NORM_GRAVITY = 2000
+const MIN_GRAVITY = 700
+const MAX_GRAVITY = 4200
+const JUMP_STRENGHT = -800
 const MAX_HOLD_TIME = 0.4;
 const follow_slope_const = PI/4
 
 var gravity := NORM_GRAVITY
-var max_speed = 320
+var max_speed = 400.0
 var prevoius_y_vel = 0
 var can_jump = true
 var want_to_jump := false
 var holding_jump := false
 var hold_time := 0.0
+var acc := 250.0
 
 var input_vector := Vector2.ZERO
 var velocity := Vector2.ZERO
@@ -60,18 +61,29 @@ func _physics_process(delta: float) -> void:
 func _move_player(delta) -> void:
 	prevoius_y_vel = velocity.y
 	if _on_down_slope():
-		velocity = velocity.move_toward(Vector2.RIGHT.rotated(follow_slope_const) * max_speed * 3, ACC * delta * 3)
+		velocity = velocity.move_toward(Vector2.RIGHT.rotated(follow_slope_const) * max_speed * 2, MAX_ACC * delta * 2)
 	else:
-		velocity.x = move_toward(velocity.x, max_speed, ACC*delta)
-		velocity.y += gravity * delta
-	#if not _on_down_slope():	
-		velocity.y = clamp(velocity.y, -800, 800)
+		velocity.x = move_toward(velocity.x, max_speed, acc*delta)
+		velocity.y += gravity * delta	
+		velocity.y = clamp(velocity.y, -1000, 1000)
 		
 	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 8,Vector2.UP,
 										true, 4, deg2rad(50), true)
 	
-	if is_on_wall():
-		velocity.x = 0
+	#print(velocity.x, " ", acc)
+	var xVelocityRatio = abs(velocity.x / max_speed)
+	var playbackSpeed = 0.75 * xVelocityRatio + 0.5
+	anim.playback_speed = playbackSpeed
+	
+	if velocity.x <= 0:
+		acc = MAX_ACC
+	elif is_on_floor():
+		acc = abs(1 - xVelocityRatio) * MAX_ACC
+	else:
+		acc = abs(1 - xVelocityRatio) * MAX_ACC * 0.5
+	
+		
+	
 
 
 func _on_down_slope() -> bool:
@@ -141,7 +153,7 @@ func _enter_run_state() -> void:
 	can_jump = true 
 	want_to_jump = false
 	gravity = NORM_GRAVITY
-	if prevoius_y_vel > 750 and not _on_down_slope():
+	if prevoius_y_vel > 950 and not _on_down_slope():
 		var particles = impact_scene.instance()
 		particles.global_position = global_position + Vector2(5, 25)
 		get_parent().add_child(particles)

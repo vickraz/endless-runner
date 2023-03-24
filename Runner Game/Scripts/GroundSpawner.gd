@@ -20,6 +20,6 @@ func _spawn_ground() -> void:
 	var number: int = randi() % number_of_parts
 	var ground_scene = load(path + str(number) + ".tscn")
 	var g = ground_scene.instance()
-	g.global_position = Vector2(edge.global_position.x + rand_range(100, 150), 0)
+	g.global_position = Vector2(edge.global_position.x + rand_range(150, 220), 0)
 	add_child(g)
 	edge = g.get_node("Edge")
