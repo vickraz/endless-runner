@@ -22,7 +22,7 @@ func _ready() -> void:
 				var b = BARREL_SCENE.instance()
 				node.add_child(b)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if player:
 		if edge.global_position.x < player.global_position.x - 500:
 			queue_free()

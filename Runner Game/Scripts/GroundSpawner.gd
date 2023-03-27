@@ -11,7 +11,7 @@ func _ready() -> void:
 	path = path + str(level) + "_"
 	randomize()
 	
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if player.global_position.x > edge.global_position.x - 600:
 		_spawn_ground()
 
