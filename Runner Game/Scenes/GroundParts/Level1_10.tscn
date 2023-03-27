@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Scenes/GroundParts/GroundPart.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/ExplosiveBarrel.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/Icicle.tscn" type="PackedScene" id=3]
 
 [node name="Level1_10" instance=ExtResource( 1 )]
 
@@ -43,3 +44,9 @@ position = Vector2( 2541, 194 )
 
 [node name="BarrelSpawn7" type="Position2D" parent="." index="13"]
 position = Vector2( 2807, 96 )
+
+[node name="Icicle" parent="." index="14" instance=ExtResource( 3 )]
+position = Vector2( 75, 49 )
+
+[node name="Icicle2" parent="." index="15" instance=ExtResource( 3 )]
+position = Vector2( 34, 48 )

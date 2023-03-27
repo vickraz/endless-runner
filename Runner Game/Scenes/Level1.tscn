@@ -19,6 +19,12 @@ script = ExtResource( 3 )
 
 [node name="Start" parent="GroundContainer" instance=ExtResource( 2 )]
 
+[node name="ExplosiveBarrel" parent="GroundContainer/Start" instance=ExtResource( 7 )]
+position = Vector2( 541, 447 )
+
+[node name="ExplosiveBarrel2" parent="GroundContainer/Start" instance=ExtResource( 7 )]
+position = Vector2( 1554, 384 )
+
 [node name="Camera2D" type="Camera2D" parent="."]
 current = true
 limit_left = 0
@@ -31,9 +37,3 @@ scale = Vector2( 2, 2 )
 
 [node name="GameOverMenu" parent="." instance=ExtResource( 6 )]
 visible = false
-
-[node name="ExplosiveBarrel" parent="." instance=ExtResource( 7 )]
-position = Vector2( 541, 447 )
-
-[node name="ExplosiveBarrel2" parent="." instance=ExtResource( 7 )]
-position = Vector2( 1554, 384 )

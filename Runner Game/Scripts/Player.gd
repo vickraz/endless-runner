@@ -19,7 +19,7 @@ const MAX_HOLD_TIME = 0.4;
 const follow_slope_const = PI/4
 
 var gravity := NORM_GRAVITY
-var max_speed = 400.0
+var max_speed = 420.0
 var prevoius_y_vel = 0
 var can_jump = true
 var want_to_jump := false
@@ -27,11 +27,11 @@ var holding_jump := false
 var hold_time := 0.0
 var acc := 250.0
 
-var input_vector := Vector2.ZERO
+#var input_vector := Vector2.ZERO
 var velocity := Vector2.ZERO
 var distance_traveled := 0.0
 
-enum {IDLE, RUNNING, AIR, SLIDE, DEAD}
+enum {RUNNING, AIR, DEAD}
 
 var state = RUNNING
 
@@ -42,16 +42,13 @@ var death_particles = preload("res://Scenes/PlayerDeadParticles.tscn")
 
 func _physics_process(delta: float) -> void:
 	match state:
-		IDLE:
-			_enter_run_state()
 		RUNNING: 
 			_run_state(delta)
 		AIR:
 			_air_state(delta)
-		SLIDE:
-			pass
 		DEAD:
 			pass
+			
 	distance_traveled = (global_position.x - start_x) / 20.0
 	distanceText.text = "Distance: " + str(round(distance_traveled)) + " m"
 	if global_position.y > 620:
@@ -61,13 +58,13 @@ func _physics_process(delta: float) -> void:
 func _move_player(delta) -> void:
 	prevoius_y_vel = velocity.y
 	if _on_down_slope():
-		velocity = velocity.move_toward(Vector2.RIGHT.rotated(follow_slope_const) * max_speed * 2, MAX_ACC * delta * 2)
+		velocity = velocity.move_toward(Vector2.RIGHT.rotated(follow_slope_const) * max_speed * 2.2, NORM_GRAVITY * delta)
 	else:
 		velocity.x = move_toward(velocity.x, max_speed, acc*delta)
 		velocity.y += gravity * delta	
 		velocity.y = clamp(velocity.y, -1000, 1000)
 		
-	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 8,Vector2.UP,
+	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 9,Vector2.UP,
 										true, 4, deg2rad(50), true)
 	
 	#print(velocity.x, " ", acc)
@@ -78,22 +75,16 @@ func _move_player(delta) -> void:
 	if velocity.x <= 0:
 		acc = MAX_ACC
 	elif is_on_floor():
-		acc = abs(1 - xVelocityRatio) * MAX_ACC
+		acc = max(abs(1 - xVelocityRatio) * MAX_ACC, 20)
 	else:
-		acc = abs(1 - xVelocityRatio) * MAX_ACC * 0.5
+		acc = max(abs(1 - xVelocityRatio) * MAX_ACC * 0.5, 20)
 	
-		
-	
-
-
 func _on_down_slope() -> bool:
 	downSlopeRay.force_raycast_update()
 	return downSlopeRay.is_colliding()
 
-#state-functions
-func _idle_state(_delta: float) -> void:
-	pass
 
+#state-functions
 func _run_state(delta: float) -> void:
 	if Input.is_action_just_pressed("jump") and can_jump:
 		_enter_air_state(true)
@@ -139,11 +130,7 @@ func _air_state(delta: float) -> void:
 		else:
 			_enter_run_state()
 
-
 #state-transitions
-func _enter_idle_state() -> void:
-	pass
-	
 func _enter_run_state() -> void:
 	anim.play("Run")
 	runningParticles.emitting = true
@@ -170,7 +157,6 @@ func _enter_air_state(jumping: bool) -> void:
 	runningParticles.emitting = false
 
 func enter_dead_state(spawn_particles: bool) -> void:
-	emit_signal("dead", round(distance_traveled))
 	state = DEAD
 	visible = false
 	distanceText.visible = false
@@ -180,6 +166,9 @@ func enter_dead_state(spawn_particles: bool) -> void:
 		p.one_shot = true
 		p.global_position = global_position + Vector2(-22, -15)
 		get_parent().add_child(p)
+		yield(get_tree().create_timer(0.4), "timeout")
+	
+	emit_signal("dead", round(distance_traveled))
 	
 
 func _on_CoyoteTimer_timeout() -> void:
