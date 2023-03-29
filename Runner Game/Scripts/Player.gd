@@ -9,6 +9,7 @@ onready var downSlopeRay = $DownSlopeRay
 onready var distanceText = $HUD/DistanceText
 onready var runningParticles = $RunningParticles
 onready var jumpBuffer = $JumpBuffer
+onready var jumpSound = $JumpSound
 
 const MAX_ACC = 350
 const NORM_GRAVITY = 2000
@@ -21,13 +22,13 @@ const follow_slope_const = PI/4
 var gravity := NORM_GRAVITY
 var max_speed = 420.0
 var prevoius_y_vel = 0
-var can_jump = true
+var can_jump := true
 var want_to_jump := false
 var holding_jump := false
 var hold_time := 0.0
 var acc := 250.0
 
-#var input_vector := Vector2.ZERO
+
 var velocity := Vector2.ZERO
 var distance_traveled := 0.0
 
@@ -61,13 +62,16 @@ func _move_player(delta) -> void:
 		velocity = velocity.move_toward(Vector2.RIGHT.rotated(follow_slope_const) * max_speed * 2.2, NORM_GRAVITY * delta)
 	else:
 		velocity.x = move_toward(velocity.x, max_speed, acc*delta)
-		velocity.y += gravity * delta	
+		velocity.y += gravity * delta
 		velocity.y = clamp(velocity.y, -1000, 1000)
 		
 	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 10,Vector2.UP,
 										true, 4, deg2rad(50), true)
 	
-	#print(velocity.x, " ", acc)
+	_change_anim_speed_and_acc(velocity)
+
+
+func _change_anim_speed_and_acc(velocity: Vector2) -> void:
 	var xVelocityRatio = abs(velocity.x / max_speed)
 	var playbackSpeed = 0.75 * xVelocityRatio + 0.5
 	anim.playback_speed = playbackSpeed
@@ -78,7 +82,7 @@ func _move_player(delta) -> void:
 		acc = max(abs(1 - xVelocityRatio) * MAX_ACC, 20)
 	else:
 		acc = max(abs(1 - xVelocityRatio) * MAX_ACC * 0.5, 20)
-	
+
 func _on_down_slope() -> bool:
 	downSlopeRay.force_raycast_update()
 	#return downSlopeRay.is_colliding()
@@ -87,6 +91,7 @@ func _on_down_slope() -> bool:
 		if norm.angle() < -PI / 6.0 and norm.angle() > -PI / 3.0:
 			return true
 	return false
+
 
 
 #state-functions
@@ -155,6 +160,7 @@ func _enter_air_state(jumping: bool) -> void:
 		velocity.y = JUMP_STRENGHT
 		can_jump = false
 		holding_jump = true
+		jumpSound.play()
 	else:
 		coyoteTimer.start()
 	state = AIR

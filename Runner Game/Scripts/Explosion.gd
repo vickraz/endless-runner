@@ -5,5 +5,6 @@ func _ready() -> void:
 	frame = 0
 
 
-func _on_Explosion_animation_finished() -> void:
+
+func _on_AudioStreamPlayer_finished() -> void:
 	queue_free()
