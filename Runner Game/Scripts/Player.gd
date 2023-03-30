@@ -63,7 +63,7 @@ func _move_player(delta) -> void:
 	else:
 		velocity.x = move_toward(velocity.x, max_speed, acc*delta)
 		velocity.y += gravity * delta
-		velocity.y = clamp(velocity.y, -1000, 1000)
+		velocity.y = min(velocity.y, 1000)
 		
 	velocity = move_and_slide_with_snap(velocity, Vector2.DOWN * 10,Vector2.UP,
 										true, 4, deg2rad(50), true)
@@ -87,8 +87,8 @@ func _on_down_slope() -> bool:
 	downSlopeRay.force_raycast_update()
 	#return downSlopeRay.is_colliding()
 	if downSlopeRay.is_colliding():
-		var norm = downSlopeRay.get_collision_normal()
-		if norm.angle() < -PI / 6.0 and norm.angle() > -PI / 3.0:
+		var norm: Vector2 = downSlopeRay.get_collision_normal()
+		if is_equal_approx(norm.angle(), -PI/4): #norm.angle() < -PI / 6.0 and norm.angle() > -PI / 3.0:
 			return true
 	return false
 
