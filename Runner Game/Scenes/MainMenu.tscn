@@ -191,3 +191,5 @@ text = ">"
 [connection signal="mouse_entered" from="CanvasLayer/Control/LevelImage" to="." method="_on_LevelImage_mouse_entered"]
 [connection signal="mouse_exited" from="CanvasLayer/Control/LevelImage" to="." method="_on_LevelImage_mouse_exited"]
 [connection signal="pressed" from="CanvasLayer/Control/LevelImage" to="." method="_on_LevelImage_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/HBoxContainer/BackButton" to="." method="_on_BackButton_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/HBoxContainer/FwdButton" to="." method="_on_FwdButton_pressed"]

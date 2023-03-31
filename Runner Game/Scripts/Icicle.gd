@@ -1,8 +1,9 @@
 extends KinematicBody2D
+class_name FallingSpike
 
 const GRAVITY = 2000
 
-onready var anim = $AnimatedSprite
+onready var anim := $AnimatedSprite
 onready var ray  = $RayCast2D
 onready var area = $Area2D
 onready var audio = $AudioStreamPlayer
@@ -14,7 +15,9 @@ var state = IDLE
 
 func _ready() -> void:
 	anim.play("idle")
-
+	anim.connect("animation_finished", self, "_on_AnimatedSprite_animation_finished")
+	area.connect("body_entered", self, "_on_Area2D_body_entered")
+	
 func _physics_process(delta: float) -> void:
 	match state:
 		IDLE:

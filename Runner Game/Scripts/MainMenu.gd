@@ -4,11 +4,12 @@ extends Node2D
 onready var levelImage  = $CanvasLayer/Control/LevelImage
 onready var levelText = $CanvasLayer/Control/HBoxContainer/Select
 
-const LEVEL1 = preload("res://Scenes/Level1.tscn")
+#const LEVEL1 = preload("res://Scenes/Level1.tscn")
 
-const LEVEL1_IMAGE = preload("res:///Assets/LevelImages/Level1.png")
+#const LEVEL1_IMAGE = preload("res:///Assets/LevelImages/Level1.png")
+#const LEVEL2_IMAGE = preload("res://Assets/LevelImages/Level2.png")
 
-var level_names = ["snowy mountains"]
+var level_names = ["snowy mountains", "mystical forest"]
 
 var level_selected = 1
 
@@ -42,3 +43,15 @@ func _on_LevelImage_mouse_entered() -> void:
 
 func _on_LevelImage_mouse_exited() -> void:
 	levelImage.rect_min_size = Vector2(250, 175)
+
+
+func _on_BackButton_pressed() -> void:
+	level_selected = max(level_selected - 1, 1)
+	levelText.text = level_names[level_selected - 1]
+	levelImage.texture_normal = load("res:///Assets/LevelImages/Level" + str(level_selected) + ".png")
+
+
+func _on_FwdButton_pressed() -> void:
+	level_selected = min(level_selected + 1, len(level_names))
+	levelText.text = level_names[level_selected - 1]
+	levelImage.texture_normal = load("res:///Assets/LevelImages/Level" + str(level_selected) + ".png")
